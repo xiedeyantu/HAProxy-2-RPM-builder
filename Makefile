@@ -3,7 +3,7 @@ MAINVERSION?=2.8
 LUA_VERSION=5.4.4
 USE_LUA?=0
 NO_SUDO?=0
-USE_PROMETHEUS?=0
+USE_PROMEX?=0
 VERSION=$(shell wget -qO- https://git.haproxy.org/git/haproxy-${MAINVERSION}.git/refs/tags/ | sed -n 's:.*>\(.*\)</a>.*:\1:p' | sed 's/^.//' | sort -rV | head -1)
 ifeq ("${VERSION}","./")
 	VERSION="${MAINVERSION}.0"
@@ -69,9 +69,9 @@ build-docker:
 run-docker: build-docker
 	mkdir -p RPMS
 ifeq ($(USE_LUA),1)
-	docker run -e USE_LUA=${USE_LUA} -e USE_PROMETHEUS=${USE_PROMETHEUS} -e RELEASE=${RELEASE} --volume $(HOME)/RPMS:/RPMS --rm haproxy-rpm-builder:latest
+	docker run -e USE_LUA=${USE_LUA} -e USE_PROMEX=${USE_PROMEX} -e RELEASE=${RELEASE} --volume $(HOME)/RPMS:/RPMS --rm haproxy-rpm-builder:latest
 else
-	docker run -e USE_PROMETHEUS=${USE_PROMETHEUS} -e RELEASE=${RELEASE} --volume $(HOME)/RPMS:/RPMS --rm haproxy-rpm-builder:latest
+	docker run -e USE_PROMEX=${USE_PROMEX} -e RELEASE=${RELEASE} --volume $(HOME)/RPMS:/RPMS --rm haproxy-rpm-builder:latest
 endif
 
 build: $(build_stages)
@@ -88,7 +88,7 @@ ifeq ($(NO_SUDO),1)
 	--define "_rpmdir %{_topdir}/RPMS" \
 	--define "_srcrpmdir %{_topdir}/SRPMS" \
 	--define "_use_lua ${USE_LUA}" \
-	--define "_use_prometheus ${USE_PROMETHEUS}"
+	--define "_use_prometheus ${USE_PROMEX}"
 else
 	sudo cp -r ./SPECS/* ./rpmbuild/SPECS/ || true
 	sudo cp -r ./SOURCES/* ./rpmbuild/SOURCES/ || true
@@ -102,5 +102,5 @@ else
 	--define "_rpmdir %{_topdir}/RPMS" \
 	--define "_srcrpmdir %{_topdir}/SRPMS" \
 	--define "_use_lua ${USE_LUA}" \
-	--define "_use_prometheus ${USE_PROMETHEUS}"
+	--define "_use_prometheus ${USE_PROMEX}"
 endif
